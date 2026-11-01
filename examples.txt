@@ -1,0 +1,65 @@
+# Well-configured site: every header present and strong.
+URL:    https://example.com
+Status: 200
+Score:  100/100 (grade A)
+Checks:
+  - [PASS] Strict-Transport-Security (20/20) max-age=31536000; includeSubDomains
+  - [PASS] Content-Security-Policy (20/20) Present
+  - [PASS] X-Frame-Options (20/20) DENY
+  - [PASS] X-Content-Type-Options (15/15) nosniff
+  - [PASS] Referrer-Policy (15/15) strict-origin-when-cross-origin
+  - [PASS] Permissions-Policy (10/10) Present
+
+# Bare site: no security headers at all.
+URL:    https://example.com
+Status: 200
+Score:  0/100 (grade F)
+Checks:
+  - [FAIL] Strict-Transport-Security (0/20) Missing
+      Fix: Add: Strict-Transport-Security: max-age=31536000; includeSubDomains
+  - [FAIL] Content-Security-Policy (0/20) Missing
+      Fix: Add a Content-Security-Policy that allow-lists script, style, and connect sources instead of '*'.
+  - [FAIL] X-Frame-Options (0/20) Missing
+      Fix: Add: X-Frame-Options: DENY (or SAMEORIGIN), or a CSP frame-ancestors directive.
+  - [FAIL] X-Content-Type-Options (0/15) Missing
+      Fix: Add: X-Content-Type-Options: nosniff
+  - [FAIL] Referrer-Policy (0/15) Missing
+      Fix: Add: Referrer-Policy: strict-origin-when-cross-origin (or no-referrer for maximum privacy).
+  - [FAIL] Permissions-Policy (0/10) Missing
+      Fix: Add: Permissions-Policy: camera=(), microphone=(), geolocation=() (plus any feature the site truly uses).
+
+# Half-configured site: HSTS and nosniff only, CSP missing.
+URL:    https://example.com
+Status: 200
+Score:  35/100 (grade F)
+Checks:
+  - [PASS] Strict-Transport-Security (20/20) max-age=31536000
+  - [FAIL] Content-Security-Policy (0/20) Missing
+      Fix: Add a Content-Security-Policy that allow-lists script, style, and connect sources instead of '*'.
+  - [FAIL] X-Frame-Options (0/20) Missing
+      Fix: Add: X-Frame-Options: DENY (or SAMEORIGIN), or a CSP frame-ancestors directive.
+  - [PASS] X-Content-Type-Options (15/15) nosniff
+  - [FAIL] Referrer-Policy (0/15) Missing
+      Fix: Add: Referrer-Policy: strict-origin-when-cross-origin (or no-referrer for maximum privacy).
+  - [FAIL] Permissions-Policy (0/10) Missing
+      Fix: Add: Permissions-Policy: camera=(), microphone=(), geolocation=() (plus any feature the site truly uses).
+
+# Weak configuration: short HSTS, unsafe-inline CSP, no frame protection, version-disclosing Server header.
+URL:    https://example.com
+Status: 200
+Score:  40/100 (grade D)
+Checks:
+  - [WARN] Strict-Transport-Security (10/20) max-age=300 is shorter than one year
+      Fix: Raise max-age to 31536000 or more.
+  - [WARN] Content-Security-Policy (10/20) Present but weak: default-src *; script-src 'unsafe-inline'
+      Fix: Remove 'unsafe-inline' / 'unsafe-eval' where possible; use nonces or hashes for inline scripts.
+  - [FAIL] X-Frame-Options (0/20) Missing
+      Fix: Add: X-Frame-Options: DENY (or SAMEORIGIN), or a CSP frame-ancestors directive.
+  - [PASS] X-Content-Type-Options (15/15) nosniff
+  - [WARN] Referrer-Policy (5/15) unsafe-url
+      Fix: unsafe-url leaks the full page URL to other sites. Use strict-origin-when-cross-origin or no-referrer.
+  - [FAIL] Permissions-Policy (0/10) Missing
+      Fix: Add: Permissions-Policy: camera=(), microphone=(), geolocation=() (plus any feature the site truly uses).
+  - [INFO] Server header discloses version info: Apache/2.4.52 (consider returning a generic value)
+  - [INFO] X-Powered-By header discloses stack info: PHP/8.1.0 (consider removing it)
+
